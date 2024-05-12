@@ -18,8 +18,9 @@ get_ssid()
       ;;
 
     Darwin)
-      if networksetup -getairportnetwork en0 | cut -d ':' -f 2 | sed 's/^[[:blank:]]*//g' &> /dev/null; then
-        echo "$(networksetup -getairportnetwork en0 | cut -d ':' -f 2)" | sed 's/^[[:blank:]]*//g'
+      interface=$(ifconfig | awk '/en0/ && /inet/ {print "en0"} /en1/ && /inet/ {print "en1"}')
+      if networksetup -getairportnetwork $interface | cut -d ':' -f 2 | sed 's/^[[:blank:]]*//g' &> /dev/null; then
+        echo "$(networksetup -getairportnetwork $interface | cut -d ':' -f 2)" | sed 's/^[[:blank:]]*//g'
       else
         echo 'Ethernet'
       fi
