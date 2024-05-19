@@ -18,11 +18,19 @@ get_ssid()
       ;;
 
     Darwin)
+      # Identify the active network interface
       interface=$(ifconfig | awk '/en0/ && /inet/ {print "en0"} /en1/ && /inet/ {print "en1"}')
-      if networksetup -getairportnetwork $interface | cut -d ':' -f 2 | sed 's/^[[:blank:]]*//g' &> /dev/null; then
-        echo "$(networksetup -getairportnetwork $interface | cut -d ':' -f 2)" | sed 's/^[[:blank:]]*//g'
+      # Get the airport network information
+      airport=$(networksetup -getairportnetwork $interface | cut -d ':' -f 2 | sed 's/^[[:blank:]]*//g')
+      # Check for wireless error message
+      notwifi=$(echo "$airport" | sed -n '/Error obtaining wireless information./p')
+
+      if [ -z "$notwifi" ] && [ -n "$airport" ]; then
+        echo "$airport"
+      elif [ -n "$interface" ]; then
+          echo 'Ethernet'
       else
-        echo 'Ethernet'
+          echo 'No connection found'
       fi
       ;;
 
